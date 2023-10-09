@@ -6,7 +6,7 @@
   "module": "commonjs",
   "main": "./build/main.js",
   "bin": {
-    "ecoterra": "./dist/main.js"
+    "ecoinfra": "./dist/main.js"
   },
   "scripts": {
     "build": "tsc",
@@ -22,9 +22,9 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/eco-terra/cli-tool/issues"
+    "url": "https://github.com/eco-infra/ecoinfraissues"
   },
-  "homepage": "https://github.com/eco-terra/cli-tool#readme",
+  "homepage": "https://github.com/eco-infra/ecoinfra#readme",
   "pkg": {
     "scripts": "dist/**/*.js",
     "targets": [
