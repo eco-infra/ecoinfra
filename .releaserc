@@ -1,5 +1,5 @@
 {
-  "branches": ["main"],
+  "branches": ["master"],
   "plugins": [
     "@semantic-release/git",
     "@semantic-release/commit-analyzer",

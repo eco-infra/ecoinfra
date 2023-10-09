@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eco-terra/cli-tool.git"
+    "url": "git+https://github.com/eco-terra/ecoinfra.git"
   },
   "author": "",
   "license": "ISC",
