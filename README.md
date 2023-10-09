@@ -63,7 +63,3 @@ You will be required you to run terraform init before running the tool.
 - Pulumi 🔴
 - CloudFormation 🔴
 - More coming soon!
-
-//gj464f7ctf
-//https://gj464f7ctf.execute-api.eu-west-1.amazonaws.com/PRELIVE
-//emissions-prod-gateway
