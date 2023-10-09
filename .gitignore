@@ -1,0 +1,7 @@
+dist
+build
+node_modules
+.idea
+**/.terraform
+**/.tf
+terraform-test-projects
