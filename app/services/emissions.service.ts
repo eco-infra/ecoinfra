@@ -44,14 +44,16 @@ export default class EmissionsService {
             const size = new TextEncoder().encode(JSON.stringify(resources)).length
             const kiloBytes = size / 1024;
             const megaBytes = kiloBytes / 1024;
-            console.log(`Size of payload: ${megaBytes} MB`)
 
-            const response = await fetch(this.URL + (this.cli.getApply() ? '/apply' : '/') + '?' + queryParams, {
+            if(megaBytes > 10) {
+                console.log(`Size of payload: ${megaBytes.toFixed(2)} MB`)
+            }
+
+            const response = await fetch(this.URL + (this.cli.getApply() ? '/apply' : '') + '?' + queryParams, {
                 body: JSON.stringify(resources),
                 method: "POST",
                 headers,
             })
-            console.log(response)
             if (response.status > 199 && response.status < 300) {
                 const json = await response.json()
                 return json

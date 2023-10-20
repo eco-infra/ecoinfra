@@ -2,7 +2,7 @@ import fs from "fs"
 
 import MainCli from "./cli/main.cli";
 import EmissionsService from "./services/emissions.service";
-import TerraformExtractor from "./extractor/terraform.extractor";
+import TerraformExtractor, {Provider} from "./extractor/terraform.extractor";
 import LoggerUtil from "./utils/logger.util";
 import ASCITextOutput from "./outputs/ascitext.output";
 import ChartOutput from "./outputs/chart.output";
@@ -16,11 +16,11 @@ export interface RawResource {
     /** @description Resource Name */
     name: string,
     /** @description All Parameters */
-    parameters: any[],
+    parameters: Record<string, string|undefined>[],
     /** @description Module Name */
     module: string
     /** @description the provider region */
-    provider?: Record<string, Record<string, string>>
+    provider?: Provider
 }
 
 (async function () {
