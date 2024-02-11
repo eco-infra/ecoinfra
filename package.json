@@ -32,6 +32,9 @@
       "node18-windows",
       "node18-macos"
     ],
+    "assets": [
+      "node_modules/figlet/fonts/Standard.flf"
+    ],
     "outputPath": "build"
   },
   "devDependencies": {
