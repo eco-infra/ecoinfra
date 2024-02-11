@@ -54,7 +54,6 @@ export interface RawResource {
             const formattedResources = extractor.getFormattedResources()
 
             const results = await emissionsService.calculate(formattedResources);
-            console.log(results)
 
             const chartOutput = new ChartOutput(cli)
             const asciTextOutput = new ASCITextOutput(cli)
@@ -69,7 +68,6 @@ export interface RawResource {
             log.purple(asciText)
             log.purple(table.toString());
             log.log(asciChartOutput.getASCICart(multiChart))
-            // log.purple(`Change: ${results.totalDiff.percentageChange}`)
         } catch (e) {
             log.error(`${e}`)
         }

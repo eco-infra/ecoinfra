@@ -93,32 +93,9 @@ export default class TerraformExtractor {
         return this.terraformObjectsKeydByModule;
     }
 
-    parsePropertiesFromModule(module: any[], key: string): { resources: RawResource[], modules: RawResource[], variables: Record<string, string | undefined>[] } {
+    parsePropertiesFromModule(module: any[], key: string): RawResource[] {
         const resources: RawResource[] = []
-        const variables: any[] = []
-        const modules: RawResource[] = []
         for (let i = 0; i < module.length; i++) {
-            if (module[i]?.variable) {
-                Object.keys(module[i].variable).forEach(v => {
-                    variables.push({
-                        variable: v,
-                        value: module[i].variable[v],
-                        module: key,
-                        provider: module[i]?.provider
-                    })
-                })
-            }
-            if (module[i]?.module) {
-                Object.keys(module[i].module).forEach(m => {
-                    modules.push({
-                        resource: m,
-                        name: m,
-                        parameters: module[i].module[m],
-                        module: key,
-                        provider: module[i]?.provider
-                    })
-                })
-            }
             if (module[i]?.resource) {
                 Object.keys(module[i].resource).forEach(r => {
                     Object.keys(module[i].resource[r]).forEach((name: string) => {
@@ -133,37 +110,33 @@ export default class TerraformExtractor {
                 })
             }
         }
-        return {resources, modules, variables}
+        return resources
     }
 
     paramIsRelevantToEmissions(param: string) {
-        switch (param) {
-            case "instance_class":
-            case "instance_type":
-                return true
-            default:
-                return false
-        }
+        const relevantParams = [
+            'instance_class',
+            'instance_type',
+            ]
+        return relevantParams.includes(param)
     }
 
     resourceIsRelevantToEmissions(resourceKey: string) {
-        switch (resourceKey) {
-            case 'aws_db_instance':
-            case 'aws_neptune_cluster_instance':
-            case 'aws_docdb_cluster_instance':
-            case 'aws_rds_cluster_instance':
-            case 'aws_instance':
-            case 'aws_cloud9_environment_ec2':
-            case 'aws_batch_compute_environment':
-            case 'aws_elasticache_cluster':
-            case 'aws_memorydb_cluster':
-            case 'aws_apprunner_service':
-            case 'aws_redshift_cluster':
-            case 'aws_lambda_function':
-                return true
-            default:
-                return false
-        }
+        const relevantResources = [
+            'aws_db_instance',
+            'aws_neptune_cluster_instance',
+            'aws_docdb_cluster_instance',
+            'aws_rds_cluster_instance',
+            'aws_instance',
+            'aws_cloud9_environment_ec2',
+            'aws_batch_compute_environment',
+            'aws_elasticache_cluster',
+            'aws_memorydb_cluster',
+            'aws_apprunner_service',
+            'aws_redshift_cluster',
+            'aws_lambda_function',
+        ]
+        return relevantResources.includes(resourceKey)
     }
 
     private extractParameterValue(r: any, paramKey: string, key: string, modules: any[], variables: CallableFunction, previousVariableValue?: string | undefined): string {
@@ -269,7 +242,7 @@ export default class TerraformExtractor {
         for (const terraformObjectModules of this.terraformObjectsKeydByModule) {
             const key = Object.keys(terraformObjectModules)[0]
             const module = terraformObjectModules[key]
-            const {resources} = this.parsePropertiesFromModule(module, key)
+            const resources = this.parsePropertiesFromModule(module, key)
 
             this.resources.push(resources)
         }
