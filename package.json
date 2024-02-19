@@ -23,9 +23,9 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/eco-infra/ecoinfraissues"
+    "url": "https://github.com/eco-infra/ecoinfra/issues"
   },
-  "homepage": "https://github.com/eco-infra/ecoinfra#readme",
+  "homepage": "https://eco-infra.com",
   "pkg": {
     "scripts": "dist/**/*.js",
     "targets": [
