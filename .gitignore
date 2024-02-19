@@ -5,3 +5,4 @@ node_modules
 **/.terraform
 **/.tf
 terraform-test-projects
+.env

@@ -1,6 +1,7 @@
-import {RawResource} from "../main";
-import fetch from "node-fetch";
-import MainCli from "../cli/main.cli";
+import fetch from 'node-fetch';
+import MainCli from '../cli/main.cli';
+import { config } from '../config/config';
+import { RawResource } from '../extractor/terraform.extractor';
 
 type emission = {
     CO2eMonthly: number
@@ -13,6 +14,7 @@ type emission = {
         prev: number
     },
 }
+
 type Run = {
     emissions: emission[]
 }
@@ -27,40 +29,40 @@ export type CalculateResponse = {
 }
 
 export default class EmissionsService {
-    constructor(private cli: MainCli) {
+  constructor(private cli: MainCli) {
+  }
+
+  URL = config().EMISSIONS_API_URL
+
+  async calculate(resources: RawResource[]): Promise<CalculateResponse> {
+    const headers = {
+      Authorization: this.cli.getToken(),
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     }
-    URL = "https://gj464f7ctf.execute-api.eu-west-1.amazonaws.com/PRELIVE/calculate"
 
-    async calculate(resources: RawResource[]): Promise<CalculateResponse> {
-        try {
-            const headers = {
-                'Authorization': this.cli.getToken(),
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
+    const queryParams = new URLSearchParams({ projectName: this.cli.getProjectName() })
 
-            const queryParams = new URLSearchParams({projectName: this.cli.getProjectName()})
+    const size = new TextEncoder().encode(JSON.stringify(resources)).length
+    const kiloBytes = size / 1024;
+    const megaBytes = kiloBytes / 1024;
 
-            const size = new TextEncoder().encode(JSON.stringify(resources)).length
-            const kiloBytes = size / 1024;
-            const megaBytes = kiloBytes / 1024;
-
-            if(megaBytes > 10) {
-                console.log(`Size of payload: ${megaBytes.toFixed(2)} MB`)
-            }
-
-            const response = await fetch(this.URL + (this.cli.getApply() ? '/apply' : '') + '?' + queryParams, {
-                body: JSON.stringify(resources),
-                method: "POST",
-                headers,
-            })
-            if (response.status > 199 && response.status < 300) {
-                const json = await response.json()
-                return json
-            }
-            throw new Error(response.statusText)
-        } catch (err) {
-            throw err
-        }
+    if (megaBytes > 10) {
+      console.log(`Size of payload: ${megaBytes.toFixed(2)} MB`)
     }
+
+    const response = await fetch(`${this.URL + (this.cli.getApply() ? '/apply' : '')}?${queryParams}`, {
+      body: JSON.stringify(resources),
+      method: 'POST',
+      headers,
+    })
+
+    if (response.status > 199 && response.status < 300) {
+      const json = await response.json()
+
+      return json
+    }
+
+    throw new Error(response.statusText)
+  }
 }

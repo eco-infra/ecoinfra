@@ -1,79 +1,68 @@
-import fs from "fs"
+import fs from 'fs'
 
-import MainCli from "./cli/main.cli";
-import EmissionsService from "./services/emissions.service";
-import TerraformExtractor, {Provider} from "./extractor/terraform.extractor";
-import LoggerUtil from "./utils/logger.util";
-import ASCITextOutput from "./outputs/ascitext.output";
-import ChartOutput from "./outputs/chart.output";
-import ASCIChartOutput from "./outputs/ascichart.output";
-import arg from "arg";
-
-
-export interface RawResource {
-    /** @description Resource Type */
-    resource: string,
-    /** @description Resource Name */
-    name: string,
-    /** @description All Parameters */
-    parameters: Record<string, string|undefined>[],
-    /** @description Module Name */
-    module: string
-    /** @description the provider region */
-    provider?: Provider
-}
+import MainCli from './cli/main.cli';
+import EmissionsService from './services/emissions.service';
+import TerraformExtractor from './extractor/terraform.extractor';
+import LoggerUtil from './utils/logger.util';
+import ASCITextOutput from './outputs/ascitext.output';
+import ChartOutput from './outputs/chart.output';
+import ASCIChartOutput from './outputs/ascichart.output';
+import Output from './outputs/output';
 
 (async function () {
-        const log = new LoggerUtil()
+  const log = new LoggerUtil()
 
+  try {
+    const cli = new MainCli(process.argv.slice(-1)[0])
 
-        try {
-            const cli = new MainCli(process.argv.slice(-1)[0])
+    const files = fs.readdirSync(cli.project)
 
-            const files = fs.readdirSync(cli.project)
+    const extractor = new TerraformExtractor(cli.project)
 
-            const extractor = new TerraformExtractor(cli.project)
+    if (!files.find((f) => f === '.terraform')) throw new Error('Please run terraform init')
 
-            if (!files.find(f => f === '.terraform')) throw new Error('Please run terraform init')
+    try {
+      const moduleContents = JSON.parse(fs.readFileSync(`${cli.project}.terraform/modules/modules.json`, 'utf-8'))
 
-            try {
-                const moduleContents = JSON.parse(fs.readFileSync(cli.project + '.terraform/modules/modules.json', 'utf-8'))
+      log.purple(`Modules found! ${cli.project}`)
 
-                log.purple("Modules found!" + ` ${cli.project}`)
+      extractor.populateTerraformObjectsByKeys(moduleContents, cli);
+    } catch (err) {
+      log.purple(`No Modules found. ${cli.project}`)
+      log.error(`${err}`)
 
-                extractor.populateTerraformObjectsByKeys(moduleContents, cli, files);
-            } catch (err) {
-                log.purple("No Modules found..." + ` ${cli.project}`)
-                log.error(`${err}`)
-
-                extractor.populateTerraformObjectsFromFilesByKeys(files, cli.project)
-            }
-
-            const emissionsService = new EmissionsService(cli)
-
-            const formattedResources = extractor.getFormattedResources()
-
-            const results = await emissionsService.calculate(formattedResources);
-
-            const chartOutput = new ChartOutput(cli)
-            const asciTextOutput = new ASCITextOutput(cli)
-
-            const asciText = await asciTextOutput.getASCIText()
-
-            let {multiChart, table} = chartOutput.getChartData(results);
-
-            const asciChartOutput = new ASCIChartOutput(cli)
-
-
-            log.purple(asciText)
-            log.purple(table.toString());
-            log.log(asciChartOutput.getASCICart(multiChart))
-        } catch (e) {
-            log.error(`${e}`)
-        }
+      extractor.populateTerraformObjectsFromFilesByKeys(files, cli.project)
     }
-    ()
-)
-;
 
+    const formattedResources = extractor.getFormattedResources()
 
+    const emissionsService = new EmissionsService(cli)
+
+    let results;
+
+    try {
+      results = await emissionsService.calculate(formattedResources);
+    } catch (e) {
+      log.error('API Error: Please check your token and project name. If the error persists, please raise and issue.')
+      log.error(`${e}`)
+
+      return
+    }
+
+    const chartOutput = new ChartOutput(cli)
+
+    const asciTextOutput = new ASCITextOutput(cli)
+
+    const asciText = await asciTextOutput.getASCIText()
+
+    const { multiChart, table } = chartOutput.getChartData(results);
+
+    const asciChartOutput = new ASCIChartOutput(cli);
+
+    const output = new Output(cli)
+    output.logResults(log, asciText, table.toString(), asciChartOutput.getASCICart(multiChart))
+  } catch (e) {
+    log.error(`${e}`)
+  }
+}()
+);

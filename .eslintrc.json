@@ -1,0 +1,54 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "jest",
+    "jest-formatting"
+  ],
+  "extends": [
+    "airbnb-base",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "semi": 0,
+    "no-useless-constructor": 0,
+    "import/no-unresolved": 0,
+    "import/extensions": 0,
+    "import/prefer-default-export": 0,
+    "func-names": 0,
+    "no-await-in-loop": 0,
+    "no-underscore-dangle": 0,
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+    "consistent-return": 0,
+    "prefer-destructuring": 0,
+    "comma-dangle": ["error", "always-multiline"],
+    "camelcase": 0,
+    "quotes": 2,
+    "class-methods-use-this": 0,
+    "padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "prev": "*", "next": ["return", "if", "try", "multiline-let", "for", "block-like"] },
+      { "blankLine": "always", "prev": ["function"], "next": "*" }
+    ],
+    "eslint-disable-next-line": 0,
+    "jest/no-disabled-tests": "warn",
+    "jest/no-focused-tests": "error",
+    "jest/no-identical-title": "error",
+    "jest/prefer-to-have-length": "warn",
+    "jest/valid-expect": "error",
+    "jest-formatting/padding-around-describe-blocks": 2,
+    "jest-formatting/padding-around-test-blocks": 2,
+    // These rules are not good, but we need to disable them for now
+    // TODO: Remove these rules and fix the issues.
+    "no-empty-function": 0,
+    "no-param-reassign": ["error", { "props": false }],
+    "array-callback-return": 0,
+    "eslint-disable-next-line no-restricted-syntax": 0,
+    "no-continue": 0,
+    "no-restricted-syntax": 0,
+    "@typescript-eslint/no-explicit-any": "off"
+  }
+}

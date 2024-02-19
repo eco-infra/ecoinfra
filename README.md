@@ -31,13 +31,13 @@ To start using the **ecoinfra** tool, follow these simple steps:
 1. Run the tool from your command line interface (CLI) or terminal.
 
 ```bash
-$ ecoinfra --token {{Token}} --project-name {{Unique Project Name}} {{Project Directory}}
+$ ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} {{Project Directory}}
 ```
 
 An example:
 
 ```bash
-$ ecoinfra --token c3da55b6-b8a0-43ad-b513-a751e76553de --project-name "Production Account" ./prod
+$ ecoinfra-PLATFORM --token c3da55b6-b8a0-43ad-b513-a751e76553de --project-name "Production Account" ./prod
 ```
 
 ## 📖 Documentation
@@ -59,7 +59,22 @@ You will be required you to run terraform init before running the tool.
 ## Supported IaC Tools
 
 - Terraform 🟢
-- OpenTofu 🟠
+- OpenTofu 🔴
 - Pulumi 🔴
 - CloudFormation 🔴
-- More coming soon!
+
+# Running the tool from source
+1. Clone the repository.
+2. Install the dependencies.
+3. Build the tool
+4. Run the tool!
+
+```bash
+git clone git@github.com:eco-infra/ecoinfra.git 
+npm i
+npm run package
+./build/ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} {{Project Directory}}
+```
+
+# Contributing
+Please read the contribution guidelines before contributing to the project. [CONTRIBUTING.md](./CONTRIBUTING.md)
