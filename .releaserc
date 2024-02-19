@@ -6,9 +6,9 @@
     "@semantic-release/release-notes-generator",
     ["@semantic-release/github", {
       "assets": [
-        {"path": "build/cli-tool-linux", "label": "Linux Release"},
-        {"path": "build/cli-tool-macos", "label": "MacOS Release"},
-        {"path": "build/cli-tool-win.exe", "label": "Windows Release"},
+        {"path": "build/ecoinfra-linux", "label": "Linux Release"},
+        {"path": "build/ecoinfra-macos", "label": "MacOS Release"},
+        {"path": "build/ecoinfra-win.exe", "label": "Windows Release"},
       ]
     }],
   ]
