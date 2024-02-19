@@ -23,6 +23,7 @@ export default class MainCli {
     if (!args['--token']) throw new Error('Specify token --token')
 
     if (!args['--project-name']) throw new Error('Specify project name --project-name')
+
     this.token = args['--token']
     this.breakdown = args['--breakdown'] ?? false
     this.apply = args['--apply'] ?? false
@@ -32,7 +33,6 @@ export default class MainCli {
 
   /**
      * @description Set the project path, making sure that the path ends with /
-     * @param path
      */
   setProjectPath(path?: string) {
     if (!path) return './'
