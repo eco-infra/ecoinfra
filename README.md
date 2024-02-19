@@ -13,7 +13,7 @@ To start using the **ecoinfra** tool, follow these simple steps:
 
 ### Step 1: Download the Tool
 
-1. Visit [**releases**](https://github.com/eco-infra/cli-tool/releases) to download the **ecoinfra** tool for your
+1. Visit [**releases**](https://github.com/eco-infra/ecoinfra/releases) to download the **ecoinfra** tool for your
    supported operating system.
 2. Once the download is complete, locate the downloaded file on your computer.
 
