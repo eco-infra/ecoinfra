@@ -43,7 +43,8 @@ import Output from './outputs/output';
     try {
       results = await emissionsService.calculate(formattedResources);
     } catch (e) {
-      log.error('API Error: Please check your token and project name. If the error persists, please raise and issue.')
+      log.error('API Error: Please check your token and project name. If the error persists, please raise an issue via github.')
+      log.info('https://github.com/eco-infra/ecoinfra/issues')
       log.error(`${e}`)
 
       return
