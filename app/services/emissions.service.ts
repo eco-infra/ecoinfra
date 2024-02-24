@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch, { Response } from 'node-fetch';
 import MainCli from '../cli/main.cli';
 import { config } from '../config/config';
 import { RawResource } from '../extractor/terraform.extractor';
@@ -34,6 +34,18 @@ export default class EmissionsService {
 
   URL = config().EMISSIONS_API_URL
 
+  async makeRequest(
+    resources: RawResource[],
+    queryParams: URLSearchParams,
+    headers: Record<string, string>,
+  ): Promise<Response> {
+    return fetch(`${this.URL + (this.cli.getApply() ? '/apply' : '')}?${queryParams}`, {
+      body: JSON.stringify(resources),
+      method: 'POST',
+      headers,
+    })
+  }
+
   async calculate(resources: RawResource[]): Promise<CalculateResponse> {
     const headers = {
       Authorization: this.cli.getToken(),
@@ -51,11 +63,7 @@ export default class EmissionsService {
       console.log(`Size of payload: ${megaBytes.toFixed(2)} MB`)
     }
 
-    const response = await fetch(`${this.URL + (this.cli.getApply() ? '/apply' : '')}?${queryParams}`, {
-      body: JSON.stringify(resources),
-      method: 'POST',
-      headers,
-    })
+    const response = await this.makeRequest(resources, queryParams, headers)
 
     if (response.status > 199 && response.status < 300) {
       const json = await response.json()

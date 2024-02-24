@@ -1,5 +1,6 @@
 import fs from 'fs'
 
+import arg from 'arg';
 import MainCli from './cli/main.cli';
 import EmissionsService from './services/emissions.service';
 import TerraformExtractor from './extractor/terraform.extractor';
@@ -13,7 +14,15 @@ import Output from './outputs/output';
   const log = new LoggerUtil()
 
   try {
-    const cli = new MainCli(process.argv.slice(-1)[0])
+    const argResults = arg({
+      '--token': String,
+      '--login': String,
+      '--project-name': String,
+      '--breakdown': Boolean,
+      '--apply': Boolean,
+    });
+
+    const cli = new MainCli(argResults, process.argv.slice(-1)[0])
 
     const files = fs.readdirSync(cli.project)
 
