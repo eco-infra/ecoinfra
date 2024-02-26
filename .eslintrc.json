@@ -2,9 +2,7 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": [
-    "@typescript-eslint",
-    "jest",
-    "jest-formatting"
+    "@typescript-eslint"
   ],
   "extends": [
     "airbnb-base",
@@ -34,13 +32,6 @@
       { "blankLine": "always", "prev": ["function"], "next": "*" }
     ],
     "eslint-disable-next-line": 0,
-    "jest/no-disabled-tests": "warn",
-    "jest/no-focused-tests": "error",
-    "jest/no-identical-title": "error",
-    "jest/prefer-to-have-length": "warn",
-    "jest/valid-expect": "error",
-    "jest-formatting/padding-around-describe-blocks": 2,
-    "jest-formatting/padding-around-test-blocks": 2,
     // These rules are not good, but we need to disable them for now
     // TODO: Remove these rules and fix the issues.
     "no-empty-function": 0,

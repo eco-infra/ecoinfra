@@ -11,24 +11,20 @@ export default class MainCli {
 
   private projectName: string;
 
-  constructor(project?: string) {
-    const args = arg({
-      '--token': String,
-      '--login': String,
-      '--project-name': String,
-      '--breakdown': Boolean,
-      '--apply': Boolean,
-    });
+  public args: arg.Result<any>
 
-    if (!args['--token']) throw new Error('Specify token --token')
+  constructor(argResults: arg.Result<any>, project?: string) {
+    this.args = argResults
 
-    if (!args['--project-name']) throw new Error('Specify project name --project-name')
+    if (!this.args['--token']) throw new Error('Specify token --token')
 
-    this.token = args['--token']
-    this.breakdown = args['--breakdown'] ?? false
-    this.apply = args['--apply'] ?? false
+    if (!this.args['--project-name']) throw new Error('Specify project name --project-name')
+
+    this.token = this.args['--token']
+    this.breakdown = this.args['--breakdown'] ?? false
+    this.apply = this.args['--apply'] ?? false
     this._project = this.setProjectPath(project)
-    this.projectName = args['--project-name']
+    this.projectName = this.args['--project-name']
   }
 
   /**
