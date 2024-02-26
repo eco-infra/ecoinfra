@@ -31,7 +31,7 @@ import Output from './outputs/output';
     if (!files.find((f) => f === '.terraform')) throw new Error('Please run terraform init')
 
     try {
-      const fileContents =fs.readFileSync(`${cli.project}.terraform/modules/modules.json`, 'utf-8')
+      const fileContents = fs.readFileSync(`${cli.project}.terraform/modules/modules.json`, 'utf-8')
       const moduleContents = JSON.parse(fileContents)
 
       log.purple(`Modules found! ${cli.project}`)
@@ -40,7 +40,7 @@ import Output from './outputs/output';
     } catch (err: any) {
       log.purple(`No Modules found. ${cli.project}`)
 
-      if(err.code !== 'ENOENT') {
+      if (err.code !== 'ENOENT') {
         log.error(`${err}`)
       }
 
