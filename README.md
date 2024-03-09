@@ -27,8 +27,20 @@ To start using the **ecoinfra** tool, follow these simple steps:
 6. A unique API key will be generated for you. Copy this key to your clipboard.
 
 ### Step 3: Run the Tool
+Run the tool in a supported CI environment
 
-1. Run the tool from your command line interface (CLI) or terminal.
+[GitHub Actions](https://github.com/marketplace/actions/eco-infra-action) 
+```yaml
+  - name: Eco-Infra
+    uses: ecoinfra/ecoinfra-action@v1.1.2
+    with:
+    token: 'TOKEN'
+    project-name: 'my-project'
+    path: './terraform'
+    apply: 'true'
+```
+
+Or Run the tool from your command line interface (CLI) or terminal.
 
 ```bash
 $ ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} {{Project Directory}}
@@ -39,7 +51,7 @@ An example:
 ```bash
 $ ecoinfra-PLATFORM --token c3da55b6-b8a0-43ad-b513-a751e76553de --project-name "Production Account" ./prod
 ```
-
+---
 ## 📖 Documentation
 
 The tool requires two arguments and a path to your IaC project (Where you run terraform form):
@@ -62,7 +74,7 @@ You will be required you to run terraform init before running the tool.
 - OpenTofu 🔴
 - Pulumi 🔴
 - CloudFormation 🔴
-
+---
 # Running the tool from source
 1. Clone the repository.
 2. Install the dependencies.
