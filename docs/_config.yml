@@ -28,7 +28,7 @@ twitter_username: ecoinfrastatus
 github_username:  eco-infra
 
 # Build settings
-remote_theme: just-the-docs
+remote_theme: just-the-docs/just-the-docs@v0.4.0.rc3
 plugins:
   - jekyll-feed
 
