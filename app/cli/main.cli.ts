@@ -14,7 +14,13 @@ export default class MainCli {
   public args: arg.Result<any>
 
   constructor(argResults: arg.Result<any>, project?: string) {
-    this.args = argResults
+    this.args = argResults;
+
+    // Check if the only argument provided is '--help'
+    if (this.args['--help'] && Object.keys(this.args).length === 1) {
+      this.displayHelp();
+      process.exit(0);
+    }
 
     if (!this.args['--token']) throw new Error('Specify token --token')
 
@@ -54,5 +60,25 @@ export default class MainCli {
 
   getBreakdown(): boolean {
     return this.breakdown
+  }
+
+  listHelpCommands(): Array<{ key: string; value: string }> {
+    return [
+      { key: '--help', value: 'Display help information' },
+      { key: '--token', value: 'Specify the API token' },
+      { key: '--project-name', value: 'Specify the project name' },
+      { key: '--breakdown', value: 'Enable or disable breakdown analysis' },
+      { key: '--apply', value: 'Apply changes' },
+    ];
+  }
+
+  /**
+   * @description Display the help commands in a formatted way
+   */
+  displayHelp(): void {
+    console.log('Available Commands:');
+    this.listHelpCommands().forEach((command) => {
+      console.log(`${command.key} => ${command.value}`);
+    });
   }
 }

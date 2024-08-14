@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsc",
     "package": "pkg .",
-    "test": "node --import tsx --test **/*.test.ts",
+    "test": "find tests -name '*.test.ts' | xargs node --import tsx --test",
     "run": "ts-node app/main.ts",
     "lint": "eslint . --ext .ts,.test.ts",
     "lint:fix": "eslint . --ext .ts,.test.ts --fix"
