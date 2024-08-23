@@ -6,28 +6,7 @@ on:
 
 jobs:
   Lint_and_Test:
-    name: Lint_and_Test
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [ 20 ]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@master
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Test
-        run: npm run test
+    uses: ./.github/workflows/lint.yaml
 
   Build_Release_and_Deploy:
     name: Build_Release_and_Deploy
