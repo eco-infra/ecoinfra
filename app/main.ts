@@ -1,9 +1,7 @@
-import fs from 'fs'
-
 import arg from 'arg';
 import MainCli from './cli/main.cli';
 import EmissionsService from './services/emissions.service';
-import TerraformExtractor from './extractor/terraform.extractor';
+import TerraformPlanExtractor from './extractor/terraform-plan.extractor';
 import LoggerUtil from './utils/logger.util';
 import ASCITextOutput from './outputs/ascitext.output';
 import ChartOutput from './outputs/chart.output';
@@ -11,7 +9,7 @@ import ASCIChartOutput from './outputs/ascichart.output';
 import Output from './outputs/output';
 
 (async function () {
-  const log = new LoggerUtil()
+  const log = new LoggerUtil();
 
   try {
     const argResults = arg({
@@ -19,64 +17,63 @@ import Output from './outputs/output';
       '--login': String,
       '--project-name': String,
       '--breakdown': Boolean,
-      '--apply': Boolean,
+      '--plan-file': String,
     });
 
-    const cli = new MainCli(argResults, process.argv.slice(-1)[0])
-
-    const files = fs.readdirSync(cli.project)
-
-    const extractor = new TerraformExtractor(cli.project)
-
-    if (!files.find((f) => f === '.terraform')) throw new Error('Please run terraform init')
+    const cli = new MainCli(argResults);
+    const planExtractor = new TerraformPlanExtractor(cli);
+    let formattedResources;
 
     try {
-      const fileContents = fs.readFileSync(`${cli.project}.terraform/modules/modules.json`, 'utf-8')
-      const moduleContents = JSON.parse(fileContents)
+      planExtractor.readPlanFile(cli.getPlanFile());
+      formattedResources = planExtractor.getFormattedResources();
 
-      log.purple(`Modules found! ${cli.project}`)
-
-      extractor.populateTerraformObjectsByKeys(moduleContents, cli);
+      const summary = planExtractor.getPlanSummary();
+      log.purple(
+        `Plan analysis complete! Found ${summary.relevantResources} relevant resources out of ${summary.totalResources} total`,
+      );
+      log.purple(`Modules: ${summary.modules.join(', ')}`);
+      log.purple(`Actions: ${JSON.stringify(summary.actions)}`);
     } catch (err: any) {
-      log.purple(`No Modules found. ${cli.project}`)
+      log.error(`Failed to read plan file: ${err.message}`);
 
-      if (err.code !== 'ENOENT') {
-        log.error(`${err}`)
-      }
-
-      extractor.populateTerraformObjectsFromFilesByKeys(files, cli.project)
+      return;
     }
 
-    const formattedResources = extractor.getFormattedResources()
-
-    const emissionsService = new EmissionsService(cli)
+    const emissionsService = new EmissionsService(cli);
 
     let results;
 
     try {
       results = await emissionsService.calculate(formattedResources);
     } catch (e) {
-      log.error('API Error: Please check your token and project name. If the error persists, please raise an issue via github.')
-      log.info('https://github.com/eco-infra/ecoinfra/issues')
-      log.error(`${e}`)
+      log.error(
+        'API Error: Please check your token and project name. If the error persists, please raise an issue via github.',
+      );
+      log.info('https://github.com/eco-infra/ecoinfra/issues');
+      log.error(`${e}`);
 
-      return
+      return;
     }
 
-    const chartOutput = new ChartOutput(cli)
+    const chartOutput = new ChartOutput(cli);
 
-    const asciTextOutput = new ASCITextOutput(cli)
+    const asciTextOutput = new ASCITextOutput(cli);
 
-    const asciText = await asciTextOutput.getASCIText()
+    const asciText = await asciTextOutput.getASCIText();
 
     const { multiChart, table } = chartOutput.getChartData(results);
 
     const asciChartOutput = new ASCIChartOutput(cli);
 
-    const output = new Output(cli)
-    output.logResults(log, asciText, table.toString(), asciChartOutput.getASCICart(multiChart))
+    const output = new Output(cli);
+    output.logResults(
+      log,
+      asciText,
+      table.toString(),
+      asciChartOutput.getASCICart(multiChart),
+    );
   } catch (e) {
-    log.error(`${e}`)
+    log.error(`${e}`);
   }
-}()
-);
+}());

@@ -1,7 +1,7 @@
 import fetch, { Response } from 'node-fetch';
 import MainCli from '../cli/main.cli';
 import { config } from '../config/config';
-import { RawResource } from '../extractor/terraform.extractor';
+import { RawResource } from '../extractor/terraform-plan.extractor';
 
 type emission = {
     CO2eMonthly: number
@@ -39,7 +39,7 @@ export default class EmissionsService {
     queryParams: URLSearchParams,
     headers: Record<string, string>,
   ): Promise<Response> {
-    return fetch(`${this.URL + (this.cli.getApply() ? '/apply' : '')}?${queryParams}`, {
+    return fetch(`${this.URL}/apply?${queryParams}`, {
       body: JSON.stringify(resources),
       method: 'POST',
       headers,
