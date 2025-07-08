@@ -1,8 +1,8 @@
 ![Eco-Infra Logo](./logo.svg)
 
-**ecoinfra** is a powerful tool that helps you predict, asses, and reduce the environmental impact of your cloud
+**ecoinfra** is a powerful tool that helps you predict, assess, and reduce the environmental impact of your cloud
 infrastructure.
-By integrating your existing or new IaC project you can harness predictive sustainability into your cloud operations.
+By analyzing Terraform plan outputs, you can harness predictive sustainability into your cloud operations.
 
 Visit our website at [**Eco-Infra.com**](https://eco-infra.com) to learn more about how we're revolutionizing
 eco-friendly cloud computing.
@@ -29,38 +29,52 @@ To start using the **ecoinfra** tool, follow these simple steps:
 ### Step 3: Run the Tool
 Run the tool in a supported CI environment
 
-[GitHub Actions](https://github.com/marketplace/actions/eco-infra-action) 
+[GitHub Actions](https://github.com/marketplace/actions/eco-infra-action)
 ```yaml
   - name: Eco-Infra
     uses: ecoinfra/ecoinfra-action@v1.1.2
     with:
     token: 'TOKEN'
     project-name: 'my-project'
-    path: './terraform'
-    apply: 'true'
+    plan-file: './terraform'
 ```
 
-Or Run the tool from your command line interface (CLI) or terminal.
+Run the tool from your command line interface (CLI) or terminal.
 
 ```bash
-$ ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} {{Project Directory}}
+$ ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} --plan-file {{Plan JSON File}}
 ```
 
-An example:
+Example:
 
 ```bash
-$ ecoinfra-PLATFORM --token c3da55b6-b8a0-43ad-b513-a751e76553de --project-name "Production Account" ./prod
+# Generate the Terraform plan JSON file
+$ terraform plan -out=plan.out
+$ terraform show -json plan.out > plan.json
+
+# Analyze with ecoinfra
+$ ecoinfra-PLATFORM --token c3dc55b6-78a0-43ad-2513-a751e76553de --project-name "Production Account" --plan-file plan.json
 ```
 ---
 ## 📖 Documentation
 
-The tool requires two arguments and a path to your IaC project (Where you run terraform form):
+### Required Parameters
 
 - `--token` - Your unique API key.
 - `--project-name` - A unique name for your project.
-- `{{Project Directory}}` - The directory of your IaC project.
+- `--plan-file` - Path to the Terraform plan JSON file.
 
-You will be required you to run terraform init before running the tool.
+### Optional Parameters
+
+- `--breakdown` - Show detailed resource breakdown.
+
+### Generating the Plan File
+
+Generate the plan file using Terraform:
+```bash
+terraform plan -out=plan.out
+terraform show -json plan.out > plan.json
+```
 
 ## Supported Providers
 
@@ -82,10 +96,16 @@ You will be required you to run terraform init before running the tool.
 4. Run the tool!
 
 ```bash
-git clone git@github.com:eco-infra/ecoinfra.git 
+git clone git@github.com:eco-infra/ecoinfra.git
 npm i
 npm run package
-./build/ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} {{Project Directory}}
+
+# Generate the Terraform plan file
+terraform plan -out=plan.out
+terraform show -json plan.out > plan.json
+
+# Run the tool
+./build/ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} --plan-file plan.json
 ```
 
 # Contributing

@@ -4,15 +4,23 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+# About EcoInfra
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+**EcoInfra** is an open-source Infrastructure-as-Code (IaC) emission calculator. Our mission is to help organizations and developers measure, understand, and reduce the carbon footprint of their cloud infrastructure.
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+EcoInfra provides a CLI tool that analyzes your infrastructure plans and reports estimated emissions, empowering you to make greener choices in your cloud deployments.
 
+## Features
 
-[jekyll-organization]: https://github.com/jekyll
+- CLI for quick integration into CI/CD pipelines
+- Support for major IaC formats
+- Detailed breakdowns and reporting
+- Open-source and community-driven
+
+## Learn More
+
+- [GitHub Repository](https://github.com/eco-infra)
+- [Contact Us](mailto:contact@eco-infra.com)
+- [Twitter](https://twitter.com/ecoinfrastatus)
+
+Help us build a more sustainable cloud!
