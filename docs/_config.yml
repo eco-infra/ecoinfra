@@ -32,6 +32,20 @@ remote_theme: just-the-docs/just-the-docs@v0.4.0.rc3
 plugins:
   - jekyll-feed
 
+# Custom styling
+color_scheme: nil
+aux_links:
+  "EcoInfra on GitHub":
+    - "//github.com/eco-infra/ecoinfra"
+
+# Custom CSS
+sass:
+  sass_dir: assets/css
+  style: compressed
+
+# Enable custom CSS
+custom_css: true
+
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
