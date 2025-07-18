@@ -1,0 +1,269 @@
+---
+---
+
+// EcoInfra Custom Styling - Earthy, Sustainable Design
+// Color Palette: Forest greens, soft neutrals, cool greys/blues
+
+// Color Variables
+:root {
+  // Primary Colors
+  --forest-green: #2E7D32;
+  --moss-green: #7CB342;
+  
+  // Accent Colors
+  --cool-grey: #ECEFF1;
+  --sky-blue: #81D4FA;
+  --eco-beige: #F5F5DC;
+  
+  // Background Colors
+  --off-white: #FAFAFA;
+  --light-mint: #F1FAF5;
+  --soft-mint: #E8F5E8;
+  
+  // Text Colors
+  --dark-forest: #1B5E20;
+  --charcoal: #424242;
+  --soft-grey: #78909C;
+}
+
+// Override Just the Docs theme colors
+.site-header {
+  background-color: var(--forest-green) !important;
+  border-bottom: 2px solid var(--moss-green);
+}
+
+.site-title {
+  color: white !important;
+  font-weight: 600;
+}
+
+// Main content area with organic background
+.main-content-wrap {
+  background: linear-gradient(135deg, var(--off-white) 0%, var(--light-mint) 100%);
+  position: relative;
+  
+  // Subtle organic background shapes
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 80%, rgba(126, 179, 66, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(129, 212, 250, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(46, 125, 50, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+.main-content {
+  background: transparent;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  
+  // Breathable spacing
+  line-height: 1.7;
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--dark-forest);
+    font-weight: 600;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  h1 {
+    color: var(--forest-green);
+    border-bottom: 3px solid var(--moss-green);
+    padding-bottom: 0.5rem;
+  }
+  
+  p {
+    color: var(--charcoal);
+    margin-bottom: 1.5rem;
+  }
+}
+
+// Navigation styling
+.navigation {
+  background-color: var(--cool-grey);
+  border-right: 1px solid var(--soft-grey);
+  
+  .nav-list-item {
+    margin: 0.25rem 0;
+    
+    .nav-list-link {
+      color: var(--dark-forest);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background-color: var(--soft-mint);
+        color: var(--forest-green);
+        transform: translateX(4px);
+      }
+      
+      &.active {
+        background-color: var(--moss-green);
+        color: white;
+        box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+      }
+    }
+  }
+}
+
+// Code blocks with earthy styling
+.highlight {
+  background-color: var(--soft-mint) !important;
+  border: 1px solid var(--moss-green);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.1);
+  
+  pre {
+    background: transparent !important;
+    margin: 0;
+  }
+  
+  code {
+    color: var(--dark-forest);
+  }
+}
+
+// Inline code
+code {
+  background-color: var(--eco-beige) !important;
+  color: var(--dark-forest) !important;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+// Buttons and interactive elements
+.btn {
+  background-color: var(--moss-green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(126, 179, 66, 0.3);
+  
+  &:hover {
+    background-color: var(--forest-green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(46, 125, 50, 0.4);
+  }
+}
+
+// Tables
+table {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
+  
+  th {
+    background-color: var(--forest-green);
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
+  }
+  
+  td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--cool-grey);
+  }
+  
+  tr:hover {
+    background-color: var(--light-mint);
+  }
+}
+
+// Blockquotes
+blockquote {
+  border-left: 4px solid var(--moss-green);
+  background-color: var(--light-mint);
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-radius: 0 12px 12px 0;
+  color: var(--dark-forest);
+  font-style: italic;
+}
+
+// Links
+a {
+  color: var(--forest-green);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    color: var(--moss-green);
+    border-bottom-color: var(--moss-green);
+  }
+}
+
+// Search box
+.search-input {
+  background-color: white;
+  border: 2px solid var(--cool-grey);
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    border-color: var(--moss-green);
+    box-shadow: 0 0 0 3px rgba(126, 179, 66, 0.2);
+    outline: none;
+  }
+}
+
+// Footer
+.site-footer {
+  background-color: var(--dark-forest);
+  color: var(--cool-grey);
+  text-align: center;
+  padding: 2rem;
+  margin-top: 4rem;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .navigation {
+    background-color: var(--off-white);
+  }
+}
+
+// Smooth animations for modern feel
+* {
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cool-grey);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--moss-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--forest-green);
+}
