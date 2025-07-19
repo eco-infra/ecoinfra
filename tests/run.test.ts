@@ -21,7 +21,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--breakdown': false,
       '--apply': false,
       '--use-plan': true,
-      '-file': 'test-plan.json',
+      '--file': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
     const extractor = new TerraformDataExtractor(mainCli);
