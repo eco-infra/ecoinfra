@@ -1,7 +1,7 @@
 import arg from 'arg';
 import MainCli from './cli/main.cli';
 import EmissionsService from './services/emissions.service';
-import TerraformPlanExtractor from './extractor/terraform-plan.extractor';
+import TerraformDataExtractor from './extractor/terraform-data.extractor';
 import LoggerUtil from './utils/logger.util';
 import ASCITextOutput from './outputs/ascitext.output';
 import ChartOutput from './outputs/chart.output';
@@ -17,25 +17,37 @@ import Output from './outputs/output';
       '--login': String,
       '--project-name': String,
       '--breakdown': Boolean,
+      '--file': String,
+
+      // Legacy support for backward compatibility
       '--plan-file': String,
+      '--state-file': String,
+
+      // Aliases
+      '-f': '--file',
+      '-p': '--plan-file',
+      '-s': '--state-file',
     });
 
     const cli = new MainCli(argResults);
-    const planExtractor = new TerraformPlanExtractor(cli);
+    const terraformExtractor = new TerraformDataExtractor(cli);
     let formattedResources;
 
     try {
-      planExtractor.readPlanFile(cli.getPlanFile());
-      formattedResources = planExtractor.getFormattedResources();
+      terraformExtractor.readTerraformFile(cli.getInputFile());
+      formattedResources = terraformExtractor.getFormattedResources();
 
-      const summary = planExtractor.getPlanSummary();
-      log.purple(
-        `Plan analysis complete! Found ${summary.relevantResources} relevant resources out of ${summary.totalResources} total`,
+      const summary = terraformExtractor.getTerraformSummary();
+      const fileTypeLabel = summary.fileType === 'plan' ? 'Plan' : 'State';
+
+      log.primary(
+        `${fileTypeLabel} analysis complete! Found ${summary.relevantResources} relevant resources out of ${summary.totalResources} total`,
       );
-      log.purple(`Modules: ${summary.modules.join(', ')}`);
-      log.purple(`Actions: ${JSON.stringify(summary.actions)}`);
+      log.info(`Auto-detected file type: ${summary.fileType}`);
+      log.secondary(`Modules: ${summary.modules.join(', ')}`);
+      log.secondary(`Actions: ${JSON.stringify(summary.actions)}`);
     } catch (err: any) {
-      log.error(`Failed to read plan file: ${err.message}`);
+      log.error(`Failed to read terraform file: ${err.message}`);
 
       return;
     }
@@ -45,7 +57,7 @@ import Output from './outputs/output';
     let results;
 
     try {
-      results = await emissionsService.calculate(formattedResources);
+      results = await emissionsService.calculate(formattedResources, cli.getFileType());
     } catch (e) {
       log.error(
         'API Error: Please check your token and project name. If the error persists, please raise an issue via github.',
@@ -63,6 +75,8 @@ import Output from './outputs/output';
     const asciText = await asciTextOutput.getASCIText();
 
     const { multiChart, table } = chartOutput.getChartData(results);
+    const totalEmissionsFromResults = results.diff.now;
+    const previousEmisisonsFromResults = results.diff.prev;
 
     const asciChartOutput = new ASCIChartOutput(cli);
 
@@ -70,8 +84,8 @@ import Output from './outputs/output';
     output.logResults(
       log,
       asciText,
-      table.toString(),
-      asciChartOutput.getASCICart(multiChart),
+      output.cli.getFileType() === 'plan' ? `Previous: ${previousEmisisonsFromResults.toFixed(2).toString()} -> Panned: ${totalEmissionsFromResults.toFixed(2).toString()}` : table.toString(),
+      output.cli.getFileType() === 'plan' ? '' : asciChartOutput.getASCICart(multiChart),
     );
   } catch (e) {
     log.error(`${e}`);

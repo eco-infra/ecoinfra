@@ -8,7 +8,9 @@ export default class ChartOutput extends Output {
 
     const multiChart: number[][] = []
 
-    const tableData = resourceDiff.slice(-1)[0].emissions.map((e) => [`${e.moduleName}.${e.resourceName}`, e.CO2eMonthly]).sort((a, b) => Number(b[1]) - Number(a[1]))
+    const formatEmission = (emission:number) => Number(emission).toFixed(2)
+
+    const tableData = resourceDiff.slice(-1)[0].emissions.map((e) => [`${e.moduleName}.${e.resourceName}`, formatEmission(e.CO2eMonthly)]).sort((a, b) => Number(b[1]) - Number(a[1]))
 
     if (this.cli.getBreakdown()) {
       resourceDiff.forEach((r) => {

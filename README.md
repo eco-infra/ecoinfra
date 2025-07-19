@@ -32,28 +32,34 @@ Run the tool in a supported CI environment
 [GitHub Actions](https://github.com/marketplace/actions/eco-infra-action)
 ```yaml
   - name: Eco-Infra
-    uses: ecoinfra/ecoinfra-action@v1.1.2
+    uses: ecoinfra/ecoinfra-action@v1.2.0
     with:
     token: 'TOKEN'
     project-name: 'my-project'
-    plan-file: './terraform'
+    file: './terraform/state.json'
 ```
 
 Run the tool from your command line interface (CLI) or terminal.
 
 ```bash
-$ ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} --plan-file {{Plan JSON File}}
+$ ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} --file {{Plan JSON File}}
 ```
 
 Example:
 
 ```bash
-# Generate the Terraform plan JSON file
+# Generate the Terraform JSON file
 $ terraform plan -out=plan.out
+# get the plan json
 $ terraform show -json plan.out > plan.json
+# or state json
+$ terraform show -json terraform.tftate > state.json
 
-# Analyze with ecoinfra
-$ ecoinfra-PLATFORM --token c3dc55b6-78a0-43ad-2513-a751e76553de --project-name "Production Account" --plan-file plan.json
+# Analyze plan with ecoinfra
+$ ecoinfra-PLATFORM --token c3dc55b6-78a0-43ad-2513-a751e76553de --project-name "Production Account" --file plan.json
+
+# Analyze state with ecoinfra
+$ ecoinfra-PLATFORM --token c3dc55b6-78a0-43ad-2513-a751e76553de --project-name "Production Account" --file state.json
 ```
 ---
 ## 📖 Documentation
@@ -62,7 +68,7 @@ $ ecoinfra-PLATFORM --token c3dc55b6-78a0-43ad-2513-a751e76553de --project-name 
 
 - `--token` - Your unique API key.
 - `--project-name` - A unique name for your project.
-- `--plan-file` - Path to the Terraform plan JSON file.
+- `-fill` - Path to the Terraform plan JSON file.
 
 ### Optional Parameters
 
@@ -105,7 +111,7 @@ terraform plan -out=plan.out
 terraform show -json plan.out > plan.json
 
 # Run the tool
-./build/ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} --plan-file plan.json
+./build/ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} -fill plan.json
 ```
 
 # Contributing
