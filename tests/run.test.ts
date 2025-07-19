@@ -21,7 +21,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--breakdown': false,
       '--apply': false,
       '--use-plan': true,
-      '--plan-file': 'test-plan.json',
+      '-fill': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
     const extractor = new TerraformDataExtractor(mainCli);
@@ -70,7 +70,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--breakdown': false,
       '--apply': false,
       '--use-plan': true,
-      '--plan-file': 'test-plan.json',
+      '-fill': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
     const extractor = new TerraformDataExtractor(mainCli);
@@ -112,7 +112,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--login': 'login',
       '--project-name': 'project-name',
       '--breakdown': false,
-      '--plan-file': 'test-plan.json',
+      '-fill': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
     const extractor = new TerraformDataExtractor(mainCli);
@@ -182,7 +182,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--login': 'login',
       '--project-name': 'project-name',
       '--breakdown': false,
-      '--plan-file': 'test-plan.json',
+      '-fill': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
     const extractor = new TerraformDataExtractor(mainCli);
@@ -237,7 +237,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--login': 'login',
       '--project-name': 'project-name',
       '--breakdown': false,
-      '--plan-file': 'test-plan.json',
+      '-fill': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
     const extractor = new TerraformDataExtractor(mainCli);
@@ -281,7 +281,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--login': 'login',
       '--project-name': 'project-name',
       '--breakdown': false,
-      '--plan-file': 'test-plan.json',
+      '-fill': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
     const extractor = new TerraformDataExtractor(mainCli);

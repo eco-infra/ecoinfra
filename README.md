@@ -68,7 +68,7 @@ $ ecoinfra-PLATFORM --token c3dc55b6-78a0-43ad-2513-a751e76553de --project-name 
 
 - `--token` - Your unique API key.
 - `--project-name` - A unique name for your project.
-- `--plan-file` - Path to the Terraform plan JSON file.
+- `-fill` - Path to the Terraform plan JSON file.
 
 ### Optional Parameters
 
@@ -111,7 +111,7 @@ terraform plan -out=plan.out
 terraform show -json plan.out > plan.json
 
 # Run the tool
-./build/ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} --plan-file plan.json
+./build/ecoinfra-PLATFORM --token {{Token}} --project-name {{Unique Project Name}} -fill plan.json
 ```
 
 # Contributing
