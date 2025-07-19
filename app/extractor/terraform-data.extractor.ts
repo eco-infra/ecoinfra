@@ -94,6 +94,10 @@ export default class TerraformDataExtractor {
 
   private formattedResources: RawResource[] = [];
 
+  public setTerraformData(data: TerraformData) {
+    this.terraformData = data
+  }
+
   /**
      * @description Detect if the JSON data is a plan or state file
      * @param data The parsed JSON data
@@ -173,8 +177,8 @@ export default class TerraformDataExtractor {
   private validateStateStructure(data: any): void {
     if (
       !data.values
-        || !data.values.root_module
-        || !Array.isArray(data.values.root_module.resources)
+            || !data.values.root_module
+            || !Array.isArray(data.values.root_module.resources)
     ) {
       throw new Error('Invalid state file: missing or invalid values.root_module.resources');
     }

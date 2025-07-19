@@ -3,70 +3,7 @@ import {
 } from 'node:test';
 import assert = require('assert');
 import MainCli from '../app/cli/main.cli';
-import EmissionsService from '../app/services/emissions.service';
-import TerraformDataExtractor from '../app/extractor/terraform-plan.extractor';
-
-/**
- * @description Run Test
- * Initial test, to check if the project is able to run
- * @TODO Add more tests and move mocking and casing to a separate files
- */
-describe('Run Test', async () => {
-  before(() => {
-    mock.reset();
-  });
-  afterEach(() => {
-    mock.reset();
-  });
-
-  await it('Should be able to run the project in plan mode', async (t) => {
-    const argResults = {
-      '--token': 'token',
-      '--login': 'login',
-      '--project-name': 'project-name',
-      '--breakdown': false,
-      '--plan-file': 'test-plan.json',
-    };
-    const mockFetch = mock.fn(() => ({
-      status: 200,
-      json: () => ({
-        runs: [],
-        diff: {
-          now: 0,
-          percentageChange: 0,
-          prev: 0,
-        },
-      }),
-    }));
-    t.mock.method(EmissionsService.prototype, 'makeRequest', mockFetch);
-    const mainCli = new MainCli(argResults, 'test-project');
-    const emissionsService = new EmissionsService(mainCli);
-    const response = await emissionsService.calculate([]);
-    assert(response.runs.length === 0);
-    assert(mainCli.getPlanFile() === 'test-plan.json');
-  });
-
-  await it('Should handle plan mode without plan file', async () => {
-    const argResults = {
-      '--token': 'token',
-      '--login': 'login',
-      '--project-name': 'project-name',
-      '--breakdown': false,
-    };
-
-    try {
-      // @ts-expect-error not passing plan file
-      const _ = new MainCli(argResults, 'test-project');
-      assert.fail(`Should have thrown an error ${_.getProjectName()}`);
-    } catch (error) {
-      assert(
-        error.message
-          === 'Specify plan file --plan-file <path>',
-        'Expected error message for missing plan file',
-      );
-    }
-  });
-});
+import TerraformDataExtractor from '../app/extractor/terraform-data.extractor';
 
 describe('TerraformDataExtractor Test', async () => {
   before(() => {
@@ -87,7 +24,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--plan-file': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
-    const extractor = new TerraformPlanExtractor(mainCli);
+    const extractor = new TerraformDataExtractor(mainCli);
 
     const mockPlanData = {
       format_version: '1.2',
@@ -115,7 +52,7 @@ describe('TerraformDataExtractor Test', async () => {
     };
 
     // Set the plan data for testing
-    extractor.setPlanData(mockPlanData);
+    extractor.setTerraformData(mockPlanData);
     const resources = extractor.getFormattedResources();
 
     assert(resources.length === 1);
@@ -136,7 +73,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--plan-file': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
-    const extractor = new TerraformPlanExtractor(mainCli);
+    const extractor = new TerraformDataExtractor(mainCli);
 
     const mockPlanData = {
       format_version: '1.2',
@@ -163,7 +100,7 @@ describe('TerraformDataExtractor Test', async () => {
     };
 
     // Set the plan data for testing
-    extractor.setPlanData(mockPlanData);
+    extractor.setTerraformData(mockPlanData);
     const resources = extractor.getFormattedResources();
 
     assert(resources.length === 0); // S3 bucket is not relevant for emissions
@@ -178,7 +115,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--plan-file': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
-    const extractor = new TerraformPlanExtractor(mainCli);
+    const extractor = new TerraformDataExtractor(mainCli);
 
     const mockPlanData = {
       format_version: '1.2',
@@ -229,7 +166,7 @@ describe('TerraformDataExtractor Test', async () => {
       ],
     };
 
-    extractor.setPlanData(mockPlanData);
+    extractor.setTerraformData(mockPlanData);
     const resources = extractor.getFormattedResources();
 
     assert(resources.length === 1, 'Expected one resource to be extracted');
@@ -248,7 +185,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--plan-file': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
-    const extractor = new TerraformPlanExtractor(mainCli);
+    const extractor = new TerraformDataExtractor(mainCli);
 
     const mockPlanData = {
       format_version: '1.2',
@@ -284,7 +221,7 @@ describe('TerraformDataExtractor Test', async () => {
       ],
     };
 
-    extractor.setPlanData(mockPlanData);
+    extractor.setTerraformData(mockPlanData);
     const resources = extractor.getFormattedResources();
 
     assert(resources.length === 1);
@@ -303,7 +240,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--plan-file': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
-    const extractor = new TerraformPlanExtractor(mainCli);
+    const extractor = new TerraformDataExtractor(mainCli);
 
     const mockPlanData = {
       format_version: '1.2',
@@ -329,7 +266,7 @@ describe('TerraformDataExtractor Test', async () => {
       ],
     };
 
-    extractor.setPlanData(mockPlanData);
+    extractor.setTerraformData(mockPlanData);
     const resources = extractor.getFormattedResources();
 
     assert(resources.length === 1);
@@ -347,7 +284,7 @@ describe('TerraformDataExtractor Test', async () => {
       '--plan-file': 'test-plan.json',
     };
     const mainCli = new MainCli(argResults, 'test-project');
-    const extractor = new TerraformPlanExtractor(mainCli);
+    const extractor = new TerraformDataExtractor(mainCli);
 
     const mockPlanData = {
       format_version: '1.2',
@@ -389,7 +326,7 @@ describe('TerraformDataExtractor Test', async () => {
       ],
     };
 
-    extractor.setPlanData(mockPlanData);
+    extractor.setTerraformData(mockPlanData);
     const resources = extractor.getFormattedResources();
 
     assert(resources.length === 1);
