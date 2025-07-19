@@ -63,7 +63,7 @@
     "@types/chalk": "^2.2.0",
     "arg": "^5.0.2",
     "asciichart": "^1.5.25",
-    "chalk": "^5.2.0",
+    "chalk": "^5.4.1",
     "cli-table": "^0.3.11",
     "enquirer": "^2.3.6",
     "figlet": "^1.6.0",
