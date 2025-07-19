@@ -1,7 +1,7 @@
 import fetch, { Response } from 'node-fetch';
 import MainCli from '../cli/main.cli';
 import { config } from '../config/config';
-import { RawResource } from '../extractor/terraform-plan.extractor';
+import { RawResource } from '../extractor/terraform-data.extractor';
 
 type emission = {
     CO2eMonthly: number
