@@ -38,15 +38,16 @@ export default class EmissionsService {
     resources: RawResource[],
     queryParams: URLSearchParams,
     headers: Record<string, string>,
+    jsonType: 'plan' | 'state' = 'plan',
   ): Promise<Response> {
-    return fetch(`${this.URL}/apply?${queryParams}`, {
+    return fetch(`${this.URL}/${jsonType === 'plan' ? '' : 'apply'}?${queryParams}`, {
       body: JSON.stringify(resources),
       method: 'POST',
       headers,
     })
   }
 
-  async calculate(resources: RawResource[]): Promise<CalculateResponse> {
+  async calculate(resources: RawResource[], jsonType: 'plan' | 'state' = 'plan'): Promise<CalculateResponse> {
     const headers = {
       Authorization: this.cli.getToken(),
       Accept: 'application/json',
@@ -63,7 +64,7 @@ export default class EmissionsService {
       console.log(`Size of payload: ${megaBytes.toFixed(2)} MB`)
     }
 
-    const response = await this.makeRequest(resources, queryParams, headers)
+    const response = await this.makeRequest(resources, queryParams, headers, jsonType)
 
     if (response.status > 199 && response.status < 300) {
       const json = await response.json()

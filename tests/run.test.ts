@@ -4,7 +4,7 @@ import {
 import assert = require('assert');
 import MainCli from '../app/cli/main.cli';
 import EmissionsService from '../app/services/emissions.service';
-import TerraformPlanExtractor from '../app/extractor/terraform-plan.extractor';
+import TerraformDataExtractor from '../app/extractor/terraform-plan.extractor';
 
 /**
  * @description Run Test
@@ -68,7 +68,7 @@ describe('Run Test', async () => {
   });
 });
 
-describe('TerraformPlanExtractor Test', async () => {
+describe('TerraformDataExtractor Test', async () => {
   before(() => {
     mock.reset();
   });

@@ -34,6 +34,29 @@ export interface TerraformPlanResource {
     };
 }
 
+export interface TerraformStateResource {
+    address: string;
+    mode: string;
+    type: string;
+    name: string;
+    index?: string | number;
+    provider_name: string;
+    schema_version: number;
+    values: any;
+    sensitive_values: any;
+}
+
+export interface TerraformState {
+    format_version: string;
+    terraform_version: string;
+    values: {
+        root_module: {
+            resources: TerraformStateResource[];
+            child_modules?: any[];
+        };
+    };
+}
+
 export interface TerraformPlan {
     format_version: string;
     terraform_version: string;
@@ -61,34 +84,99 @@ export interface TerraformPlan {
     };
 }
 
-export default class TerraformPlanExtractor {
+export type TerraformData = TerraformPlan | TerraformState;
+
+export default class TerraformDataExtractor {
   constructor(private cli: MainCli) {
   }
 
-  private planData: TerraformPlan | null = null;
+  private terraformData: TerraformData = {} as TerraformData;
 
   private formattedResources: RawResource[] = [];
 
   /**
-     * @description Set plan data for testing purposes
-     * @param planData The plan data to set
+     * @description Detect if the JSON data is a plan or state file
+     * @param data The parsed JSON data
      */
-  setPlanData(planData: TerraformPlan): void {
-    this.planData = planData;
+  private detectFileType(data: any): 'plan' | 'state' {
+    // Plan files have resource_changes, state files have values
+    if (data.resource_changes && Array.isArray(data.resource_changes)) {
+      this.cli.setFileType('plan')
+
+      return 'plan';
+    }
+
+    if (data.values && data.values.root_module) {
+      this.cli.setFileType('state')
+
+      return 'state';
+    }
+    throw new Error('Unable to determine file type. File must be a Terraform plan or state JSON.');
   }
 
   /**
-     * @description Read and parse Terraform plan JSON file
+     * @description Read and parse Terraform JSON file (plan or state)
+     * @param filePath Path to the Terraform JSON file
+     */
+  readTerraformFile(filePath: string): TerraformData {
+    try {
+      const content = fs.readFileSync(filePath, 'utf-8');
+      const parsedData = JSON.parse(content);
+
+      const fileType = this.detectFileType(parsedData);
+
+      // Validate the structure based on detected type
+      if (fileType === 'plan') {
+        this.validatePlanStructure(parsedData);
+      } else {
+        this.validateStateStructure(parsedData);
+      }
+
+      if (parsedData === null) throw new Error('Invalid JSON');
+
+      this.terraformData = parsedData;
+
+      return this.terraformData;
+    } catch (error) {
+      throw new Error(`Failed to read or parse Terraform file: ${error}`);
+    }
+  }
+
+  /**
+     * @description Legacy method for backward compatibility
      * @param planPath Path to the Terraform plan JSON file
      */
   readPlanFile(planPath: string): TerraformPlan {
-    try {
-      const content = fs.readFileSync(planPath, 'utf-8');
-      this.planData = JSON.parse(content);
+    const data = this.readTerraformFile(planPath);
 
-      return this.planData!;
-    } catch (error) {
-      throw new Error(`Failed to read or parse plan file: ${error}`);
+    if (this.detectFileType(data) !== 'plan') {
+      throw new Error('File is not a Terraform plan. Use readTerraformFile() for state files.');
+    }
+
+    return data as TerraformPlan;
+  }
+
+  /**
+     * @description Validate plan file structure
+     * @param data The parsed plan data
+     */
+  private validatePlanStructure(data: any): void {
+    if (!data.resource_changes || !Array.isArray(data.resource_changes)) {
+      throw new Error('Invalid plan file: missing or invalid resource_changes');
+    }
+  }
+
+  /**
+     * @description Validate state file structure
+     * @param data The parsed state data
+     */
+  private validateStateStructure(data: any): void {
+    if (
+      !data.values
+        || !data.values.root_module
+        || !Array.isArray(data.values.root_module.resources)
+    ) {
+      throw new Error('Invalid state file: missing or invalid values.root_module.resources');
     }
   }
 
@@ -297,6 +385,174 @@ export default class TerraformPlanExtractor {
     });
 
     return [relevantParams];
+  }
+
+  /**
+     * @description Extract provider configuration from state file resources
+     * @param stateData The parsed state data
+     */
+  extractProviderConfigFromState(stateData: TerraformState): Provider | undefined {
+    const providerConfig: Provider = {};
+    const regionsByProvider: Record<string, Set<string>> = {};
+
+    // Collect regions from all resources
+    const collectRegions = (module: any) => {
+      if (module.resources && Array.isArray(module.resources)) {
+        module.resources.forEach((resource: TerraformStateResource) => {
+          const providerName = this.normalizeProviderName(resource.provider_name);
+
+          // Extract region from resource values
+          const region = this.extractRegionFromResource(resource);
+
+          if (region) {
+            if (!regionsByProvider[providerName]) {
+              regionsByProvider[providerName] = new Set();
+            }
+            regionsByProvider[providerName].add(region);
+          }
+        });
+      }
+
+      if (module.child_modules && Array.isArray(module.child_modules)) {
+        module.child_modules.forEach((childModule: any) => {
+          collectRegions(childModule);
+        });
+      }
+    };
+
+    collectRegions(stateData.values.root_module);
+
+    // Build provider config from collected regions
+    Object.entries(regionsByProvider).forEach(([providerName, regions]) => {
+      const regionArray = Array.from(regions);
+      // Use the first region if multiple regions exist
+      const primaryRegion = regionArray[0];
+
+      providerConfig[providerName] = [{
+        region: primaryRegion,
+        // Add other common provider attributes that might be needed
+        ...(regionArray.length > 1 && { additional_regions: regionArray.slice(1) }),
+      }];
+    });
+
+    return Object.keys(providerConfig).length > 0 ? providerConfig : undefined;
+  }
+
+  /**
+     * @description Extract region from a resource's values
+     * @param resource The state resource
+     */
+  private extractRegionFromResource(resource: TerraformStateResource): string | undefined {
+    if (!resource.values || typeof resource.values !== 'object') {
+      return undefined;
+    }
+
+    // Common region field names across different providers
+    const regionFields = [
+      'region', // AWS
+      'location', // Azure
+      'zone', // GCP
+      'availability_zone', // AWS (extract region from AZ)
+      'placement_group', // Some resources
+    ];
+
+    for (const field of regionFields) {
+      const value = resource.values[field];
+
+      if (typeof value === 'string' && value.trim()) {
+        // For AWS availability zones, extract the region (e.g., us-east-1a -> us-east-1)
+        if (field === 'availability_zone' && value.match(/^[a-z]+-[a-z]+-\d+[a-z]$/)) {
+          return value.slice(0, -1); // Remove the last character (zone letter)
+        }
+
+        return value.trim();
+      }
+    }
+
+    // Try to extract from nested objects
+    const nestedObjects = ['placement', 'location_info', 'provider_config'];
+
+    for (const nestedField of nestedObjects) {
+      const nestedValue = resource.values[nestedField];
+
+      if (nestedValue && typeof nestedValue === 'object') {
+        for (const regionField of regionFields) {
+          const regionValue = nestedValue[regionField];
+
+          if (typeof regionValue === 'string' && regionValue.trim()) {
+            return regionValue.trim();
+          }
+        }
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+     * @description Process resources from state file
+     * @param stateData The parsed state data
+     */
+  processStateResources(stateData: TerraformState): RawResource[] {
+    const resources: RawResource[] = [];
+    const providerConfig = this.extractProviderConfigFromState(stateData);
+
+    const processModule = (module: any, moduleName: string = 'root') => {
+      if (module.resources && Array.isArray(module.resources)) {
+        module.resources.forEach((resource: TerraformStateResource) => {
+          // Only process relevant resources
+          if (!this.resourceIsRelevantToEmissions(resource.type)) {
+            return;
+          }
+
+          const parameters = this.extractRelevantParameters(resource.values || {});
+
+          // Create a mock resource change for provider resolution
+          const mockResourceChange: TerraformPlanResource = {
+            address: resource.address,
+            mode: resource.mode,
+            type: resource.type,
+            name: resource.name,
+            provider_name: resource.provider_name,
+            change: {
+              actions: ['no-op'], // State represents current state
+              before: resource.values,
+              after: resource.values,
+              after_unknown: {},
+              before_sensitive: {},
+              after_sensitive: {},
+            },
+          };
+
+          // Get provider-specific config with region information extracted from state
+          const resourceProvider = this.getProviderForResource(mockResourceChange, providerConfig);
+
+          const formattedResource: RawResource = {
+            resource: resource.type,
+            name: resource.name,
+            parameters,
+            module: moduleName,
+            provider: resourceProvider,
+            action: 'existing', // State represents existing resources
+          };
+
+          resources.push(formattedResource);
+        });
+      }
+
+      if (module.child_modules && Array.isArray(module.child_modules)) {
+        module.child_modules.forEach((childModule: any) => {
+          processModule(
+            childModule,
+            childModule.address ? childModule.address.replace('module.', '') : 'unknown',
+          );
+        });
+      }
+    };
+
+    processModule(stateData.values.root_module);
+
+    return resources;
   }
 
   /**
@@ -538,20 +794,30 @@ export default class TerraformPlanExtractor {
   }
 
   /**
-     * @description Get formatted resources from the plan
-     * Uses resource_changes by default, falls back to planned_values
+     * @description Get formatted resources from the terraform data (plan or state)
+     * Automatically detects file type and processes accordingly
      */
   getFormattedResources(): RawResource[] {
-    if (!this.planData) {
-      throw new Error('No plan data loaded. Call readPlanFile first.');
+    if (!this.terraformData) {
+      throw new Error('No terraform data loaded. Call readTerraformFile first.');
     }
 
-    // Primary approach: use resource_changes for more detailed change information
-    let resources = this.processResourceChanges(this.planData);
+    const fileType = this.detectFileType(this.terraformData);
+    let resources: RawResource[] = [];
 
-    // Fallback: use planned_values if resource_changes is empty or incomplete
-    if (resources.length === 0 && this.planData.planned_values) {
-      resources = this.processPlannedValues(this.planData);
+    if (fileType === 'plan') {
+      const planData = this.terraformData as TerraformPlan;
+
+      // Primary approach: use resource_changes for more detailed change information
+      resources = this.processResourceChanges(planData);
+
+      // Fallback: use planned_values if resource_changes is empty or incomplete
+      if (resources.length === 0 && planData.planned_values) {
+        resources = this.processPlannedValues(planData);
+      }
+    } else {
+      const stateData = this.terraformData as TerraformState;
+      resources = this.processStateResources(stateData);
     }
 
     this.formattedResources = resources;
@@ -560,7 +826,82 @@ export default class TerraformPlanExtractor {
   }
 
   /**
-     * @description Get plan summary for logging
+     * @description Get terraform data summary for logging
+     */
+  getTerraformSummary(): {
+        totalResources: number;
+        relevantResources: number;
+        actions: Record<string, number>;
+        modules: string[];
+        fileType: 'plan' | 'state';
+        } {
+    if (!this.terraformData) {
+      throw new Error('No terraform data loaded. Call readTerraformFile first.');
+    }
+
+    const fileType = this.detectFileType(this.terraformData);
+    const actions: Record<string, number> = {};
+    const modules = new Set<string>();
+    let relevantResources = 0;
+    let totalResources = 0;
+
+    if (fileType === 'plan') {
+      const planData = this.terraformData as TerraformPlan;
+
+      planData.resource_changes.forEach((resource) => {
+        const moduleName = this.extractModuleName(resource.address);
+        modules.add(moduleName);
+
+        if (this.resourceIsRelevantToEmissions(resource.type)) {
+          relevantResources += 1;
+        }
+
+        resource.change.actions.forEach((action) => {
+          actions[action] = (actions[action] || 0) + 1;
+        });
+      });
+
+      totalResources = planData.resource_changes.length;
+    } else {
+      const stateData = this.terraformData as TerraformState;
+
+      const countResources = (module: any) => {
+        if (module.resources && Array.isArray(module.resources)) {
+          module.resources.forEach((resource: TerraformStateResource) => {
+            const moduleName = this.extractModuleName(resource.address);
+            modules.add(moduleName);
+
+            if (this.resourceIsRelevantToEmissions(resource.type)) {
+              relevantResources += 1;
+            }
+
+            // State files represent existing resources
+            actions.existing = (actions.existing || 0) + 1;
+            totalResources += 1;
+          });
+        }
+
+        if (module.child_modules && Array.isArray(module.child_modules)) {
+          module.child_modules.forEach((childModule: any) => {
+            countResources(childModule);
+          });
+        }
+      };
+
+      countResources(stateData.values.root_module);
+    }
+
+    return {
+      totalResources,
+      relevantResources,
+      actions,
+      modules: Array.from(modules),
+      fileType,
+    };
+  }
+
+  /**
+     * @description Legacy method for backward compatibility
      */
   getPlanSummary(): {
         totalResources: number;
@@ -568,32 +909,13 @@ export default class TerraformPlanExtractor {
         actions: Record<string, number>;
         modules: string[];
         } {
-    if (!this.planData) {
-      throw new Error('No plan data loaded. Call readPlanFile first.');
-    }
-
-    const actions: Record<string, number> = {};
-    const modules = new Set<string>();
-    let relevantResources = 0;
-
-    this.planData.resource_changes.forEach((resource) => {
-      const moduleName = this.extractModuleName(resource.address);
-      modules.add(moduleName);
-
-      if (this.resourceIsRelevantToEmissions(resource.type)) {
-        relevantResources += 1;
-      }
-
-      resource.change.actions.forEach((action) => {
-        actions[action] = (actions[action] || 0) + 1;
-      });
-    });
+    const summary = this.getTerraformSummary();
 
     return {
-      totalResources: this.planData.resource_changes.length,
-      relevantResources,
-      actions,
-      modules: Array.from(modules),
+      totalResources: summary.totalResources,
+      relevantResources: summary.relevantResources,
+      actions: summary.actions,
+      modules: summary.modules,
     };
   }
 }
