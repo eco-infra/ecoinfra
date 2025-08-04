@@ -203,6 +203,20 @@ export default class TerraformDataExtractor {
       'aws_apprunner_service',
       'aws_redshift_cluster',
       'aws_lambda_function',
+      'aws_eks_cluster',
+      'aws_eks_node_group',
+      'aws_ecs_cluster',
+      'aws_ecs_service',
+      'aws_autoscaling_group',
+      'aws_ebs_volume',
+      'aws_nat_gateway',
+      'aws_alb',
+      'aws_lb',
+      'aws_emr_cluster',
+      'aws_opensearch_domain',
+      'aws_api_gateway_rest_api',
+      'aws_api_gatewayv2_api',
+      'aws_cloudfront_distribution',
     ];
 
     return relevantResources.includes(resourceType);
@@ -216,6 +230,8 @@ export default class TerraformDataExtractor {
     const relevantParams = [
       'instance_class',
       'instance_type',
+      'aws_eks_node_group',
+      'aws_eks_fargate_profile',
       'allocated_storage',
       'storage_type',
       'engine',
